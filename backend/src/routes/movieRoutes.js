@@ -12,6 +12,7 @@ router.get("/load", async (req, res) => {
   }
 });
 
+//HERE FOR TESTNG PURPOSES ONLY, SHOULD BE PROTECTED IN PRODUCTION
 router.delete("/delete", async (req, res) => {
   try {
     await movie.deleteMovies();
