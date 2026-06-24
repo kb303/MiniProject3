@@ -28,7 +28,7 @@ const registerUser = async (userBody) => {
   return user;
 };
 
-//display users
+//display users - only for testing purposes, should be protected in production
 const displayUsers = async () => {
   const users = await displayUsersInDB();
   return users;
