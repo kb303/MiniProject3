@@ -23,7 +23,7 @@ const normalizeMovies = (payload) => {
     id: movie.id ?? movie._id ?? movie.slug ?? "",
     title: movie.title ?? movie.name ?? "Untitled",
     year: movie.year ?? movie.premiered?.slice(0, 4) ?? 0,
-    type: movie.type ?? (movie.network ? "tv" : "movie"),
+    type: movie.type ?? (movie.genre === "Drama" ? "movie" : "tv"),
     genres: Array.isArray(movie.genres)
       ? movie.genres
       : typeof movie.genre === "string"
@@ -51,7 +51,7 @@ const normalizeGenres = (payload) => {
 
 export function MovieProvider({ children }) {
   const [discoverSort, setDiscoverSort] = useState("default");
-  const [activeGenre, setActiveGenre] = useState(null);
+  const [activeGenre, setActiveGenre] = useState("All");
   const [mediaFilter, setMediaFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMovie, setSelectedMovie] = useState(null);

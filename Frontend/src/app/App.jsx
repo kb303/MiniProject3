@@ -19,10 +19,6 @@ export default function App() {
   const [likedIds, setLikedIds] = useState(new Set(["succession", "theBear"]));
   const [comments, setComments] = useState(INITIAL_COMMENTS);
   const [lists, setLists] = useState(INITIAL_LISTS);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeGenre, setActiveGenre] = useState("All");
-  const [mediaFilter, setMediaFilter] = useState("all");
-  const [discoverSort, setDiscoverSort] = useState("default");
   const [newComment, setNewComment] = useState("");
   const [selectedActor, setSelectedActor] = useState(null);
   const [actorSearch, setActorSearch] = useState("");
@@ -34,7 +30,18 @@ export default function App() {
   const [newListName, setNewListName] = useState("");
   const [activeListId, setActiveListId] = useState(INITIAL_LISTS[0].id);
 
-  const { sortedFiltered, filteredMovies } = useContext(MovieContext);
+  const {
+    sortedFiltered,
+    filteredMovies,
+    searchQuery,
+    setSearchQuery,
+    activeGenre,
+    setActiveGenre,
+    mediaFilter,
+    setMediaFilter,
+    discoverSort,
+    setDiscoverSort,
+  } = useContext(MovieContext);
 
   // Derived data
 
