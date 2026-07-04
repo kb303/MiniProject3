@@ -7,8 +7,11 @@ import Actors from "../pages/Actors.jsx";
 import Lists from "../pages/Lists.jsx";
 import Liked from "../pages/Liked.jsx";
 import Reviews from "../pages/Reviews.jsx";
-import { MOVIES, INITIAL_COMMENTS, INITIAL_LISTS } from "../data/index.js";
+
+import { INITIAL_COMMENTS, INITIAL_LISTS } from "../data/index.js";
 import { sortMovies, getActorMovies } from "../utils/helpers.js";
+import { MovieContext } from "../context/movieContext.jsx";
+import { useContext } from "react";
 
 export default function App() {
   const [view, setView] = useState("discover");
@@ -19,10 +22,10 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeGenre, setActiveGenre] = useState("All");
   const [mediaFilter, setMediaFilter] = useState("all");
+  const [discoverSort, setDiscoverSort] = useState("default");
   const [newComment, setNewComment] = useState("");
   const [selectedActor, setSelectedActor] = useState(null);
   const [actorSearch, setActorSearch] = useState("");
-  const [discoverSort, setDiscoverSort] = useState("default");
   const [likedSort, setLikedSort] = useState("default");
   const [likedGenre, setLikedGenre] = useState("All");
   const [listSorts, setListSorts] = useState({});
@@ -31,17 +34,17 @@ export default function App() {
   const [newListName, setNewListName] = useState("");
   const [activeListId, setActiveListId] = useState(INITIAL_LISTS[0].id);
 
+  const { sortedFiltered, filteredMovies } = useContext(MovieContext);
+
   // Derived data
-  const filteredMovies = MOVIES.filter((m) => {
-    const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesGenre = activeGenre === "All" || m.genres.includes(activeGenre);
-    const matchesMedia = mediaFilter === "all" || m.type === mediaFilter;
-    return matchesSearch && matchesGenre && matchesMedia;
-  });
-  const sortedFiltered = sortMovies(filteredMovies, discoverSort);
+
   const likedMovies = sortMovies(
-    MOVIES.filter((m) => likedIds.has(m.id) && (likedGenre === "All" || m.genres.includes(likedGenre))),
-    likedSort
+    filteredMovies.filter(
+      (m) =>
+        likedIds.has(m.id) &&
+        (likedGenre === "All" || m.genres.includes(likedGenre)),
+    ),
+    likedSort,
   );
 
   // Handlers
@@ -60,10 +63,17 @@ export default function App() {
       author: "You",
       initials: "YO",
       text: newComment.trim(),
-      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      date: new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }),
       likes: 0,
     };
-    setComments((prev) => ({ ...prev, [selectedMovie.id]: [comment, ...(prev[selectedMovie.id] ?? [])] }));
+    setComments((prev) => ({
+      ...prev,
+      [selectedMovie.id]: [comment, ...(prev[selectedMovie.id] ?? [])],
+    }));
     setNewComment("");
   };
 
@@ -72,14 +82,23 @@ export default function App() {
       prev.map((l) => {
         if (l.id !== listId) return l;
         const has = l.movieIds.includes(movieId);
-        return { ...l, movieIds: has ? l.movieIds.filter((id) => id !== movieId) : [...l.movieIds, movieId] };
-      })
+        return {
+          ...l,
+          movieIds: has
+            ? l.movieIds.filter((id) => id !== movieId)
+            : [...l.movieIds, movieId],
+        };
+      }),
     );
   };
 
   const createList = () => {
     if (!newListName.trim()) return;
-    const list = { id: Date.now().toString(), name: newListName.trim(), movieIds: [] };
+    const list = {
+      id: Date.now().toString(),
+      name: newListName.trim(),
+      movieIds: [],
+    };
     setLists((prev) => [...prev, list]);
     setNewListName("");
     setShowNewList(false);
@@ -93,13 +112,15 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground" style={{ fontFamily: "var(--font-sans)" }}>
+    <div
+      className="min-h-screen bg-background text-foreground"
+      style={{ fontFamily: "var(--font-sans)" }}
+    >
       <Navbar
         view={view}
         setView={setView}
         likedIds={likedIds}
         comments={comments}
-        actorSearch={actorSearch}
         setActorSearch={setActorSearch}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -108,7 +129,7 @@ export default function App() {
       <main className="pt-16">
         {view === "discover" && (
           <Discover
-            featured={MOVIES[0]}
+            featured={sortedFiltered[0] ?? null}
             sortedFiltered={sortedFiltered}
             likedIds={likedIds}
             comments={comments}
@@ -121,13 +142,6 @@ export default function App() {
             setActiveGenre={setActiveGenre}
             setSelectedMovie={setSelectedMovie}
             toggleLike={toggleLike}
-          />
-        )}
-
-        {view === "actors" && (
-          <Actors
-            actorSearch={actorSearch}
-            setSelectedActor={setSelectedActor}
           />
         )}
 
@@ -176,7 +190,10 @@ export default function App() {
         <MovieModal
           movie={selectedMovie}
           liked={likedIds.has(selectedMovie.id)}
-          onClose={() => { setSelectedMovie(null); setShowAddToList(false); }}
+          onClose={() => {
+            setSelectedMovie(null);
+            setShowAddToList(false);
+          }}
           onToggleLike={() => toggleLike(selectedMovie.id)}
           comments={comments[selectedMovie.id] ?? []}
           onAddComment={addComment}
@@ -186,18 +203,10 @@ export default function App() {
           onToggleList={toggleMovieInList}
           showAddToList={showAddToList}
           onToggleAddToList={() => setShowAddToList((p) => !p)}
-          onActorClick={(name) => { setSelectedActor(name); setShowAddToList(false); }}
-        />
-      )}
-
-      {selectedActor && (
-        <ActorModal
-          actorName={selectedActor}
-          movies={getActorMovies(selectedActor)}
-          onClose={() => setSelectedActor(null)}
-          onMovieClick={(movie) => { setSelectedActor(null); setSelectedMovie(movie); }}
-          likedIds={likedIds}
-          onToggleLike={toggleLike}
+          onActorClick={(name) => {
+            setSelectedActor(name);
+            setShowAddToList(false);
+          }}
         />
       )}
     </div>

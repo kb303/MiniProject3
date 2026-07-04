@@ -12,6 +12,24 @@ router.get("/load", async (req, res) => {
   }
 });
 
+router.get("/genres", async (req, res) => {
+  try {
+    const genres = await movie.retrieveGenres();
+    res.status(200).json(genres);
+  } catch (error) {
+    res.status(500).send("Error retrieving genres: " + error.message);
+  }
+});
+
+router.get("/all", async (req, res) => {
+  try {
+    const movies = await movie.retrieveMovies();
+    res.status(200).json(movies);
+  } catch (error) {
+    res.status(500).send("Error retrieving movies: " + error.message);
+  }
+});
+
 //HERE FOR TESTNG PURPOSES ONLY, SHOULD BE PROTECTED IN PRODUCTION
 router.delete("/delete", async (req, res) => {
   try {
