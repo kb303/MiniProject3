@@ -1,5 +1,3 @@
-import { MOVIES } from "../data/index.js";
-
 export const posterUrl = (value, w = 400, h = 600) => {
   if (!value) return "https://placehold.co/400x600?text=No+Poster";
   if (typeof value === "string" && /^(https?:)?\/\//i.test(value)) return value;
@@ -22,6 +20,3 @@ export const sortMovies = (arr, key) => {
     return copy.sort((a, b) => a.title.localeCompare(b.title));
   return copy;
 };
-
-export const getActorMovies = (actorName) =>
-  MOVIES.filter((m) => m.cast.includes(actorName));
