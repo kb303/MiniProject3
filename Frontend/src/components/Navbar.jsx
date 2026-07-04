@@ -1,30 +1,36 @@
 import { Film, Search } from "lucide-react";
 
-const NAV_ITEMS = ["discover", "actors", "lists", "liked", "reviews"];
+const NAV_ITEMS = ["discover", "lists", "liked", "reviews"];
 
-export default function Navbar({ view, setView, likedIds, comments, actorSearch, setActorSearch, searchQuery, setSearchQuery }) {
-  const totalReviews = Object.values(comments).reduce((s, c) => s + c.length, 0);
+export default function Navbar({
+  view,
+  setView,
+  likedIds,
+  comments,
+  actorSearch,
+  setActorSearch,
+  searchQuery,
+  setSearchQuery,
+}) {
+  const totalReviews = Object.values(comments).reduce(
+    (s, c) => s + c.length,
+    0,
+  );
 
   const getLabel = (v) => {
-    if (v === "liked")   return `Liked (${likedIds.size})`;
-    if (v === "lists")   return "My Lists";
-    if (v === "actors")  return "Actors";
+    if (v === "liked") return `Liked (${likedIds.size})`;
+    if (v === "lists") return "My Lists";
     if (v === "reviews") return `Reviews (${totalReviews})`;
     return "Discover";
   };
 
-  const searchValue = view === "actors" ? actorSearch : searchQuery;
+  const searchValue = searchQuery;
   const searchPlaceholder =
-    view === "actors"  ? "Search actors..."  :
     view === "reviews" ? "Search reviews..." : "Search titles...";
 
   const handleSearch = (e) => {
-    if (view === "actors") {
-      setActorSearch(e.target.value);
-    } else {
-      setSearchQuery(e.target.value);
-      if (view !== "discover" && view !== "reviews") setView("discover");
-    }
+    setSearchQuery(e.target.value);
+    if (view !== "discover" && view !== "reviews") setView("discover");
   };
 
   return (
@@ -35,7 +41,10 @@ export default function Navbar({ view, setView, likedIds, comments, actorSearch,
           <div className="w-7 h-7 bg-primary rounded flex items-center justify-center">
             <Film className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="text-xl font-black tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+          <span
+            className="text-xl font-black tracking-tight text-foreground"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             CINELOG
           </span>
         </div>
@@ -47,7 +56,9 @@ export default function Navbar({ view, setView, likedIds, comments, actorSearch,
               key={v}
               onClick={() => setView(v)}
               className={`px-4 py-1.5 rounded text-sm font-medium transition-colors ${
-                view === v ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                view === v
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {getLabel(v)}

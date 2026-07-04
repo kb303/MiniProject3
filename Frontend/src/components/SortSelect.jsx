@@ -4,7 +4,8 @@ import { SORT_OPTIONS } from "../data/index.js";
 
 export default function SortSelect({ value, onChange }) {
   const [open, setOpen] = useState(false);
-  const current = SORT_OPTIONS.find((o) => o.value === value);
+  const current =
+    SORT_OPTIONS.find((o) => o.value === value) ?? SORT_OPTIONS[0];
   return (
     <div className="relative">
       <button
@@ -13,7 +14,9 @@ export default function SortSelect({ value, onChange }) {
       >
         <ArrowUpDown className="w-3 h-3" />
         {current.label}
-        <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
       {open && (
         <>
@@ -22,7 +25,10 @@ export default function SortSelect({ value, onChange }) {
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
-                onClick={() => { onChange(opt.value); setOpen(false); }}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
                 className={`w-full flex items-center justify-between px-4 py-2 text-xs transition-colors ${
                   value === opt.value
                     ? "text-primary bg-primary/5"
