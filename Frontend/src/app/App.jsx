@@ -3,14 +3,14 @@ import Navbar from "../components/Navbar.jsx";
 import MovieModal from "../components/MovieModal.jsx";
 import ActorModal from "../components/ActorModal.jsx";
 import Discover from "../pages/Discover.jsx";
-import Actors from "../pages/Actors.jsx";
 import Lists from "../pages/Lists.jsx";
 import Liked from "../pages/Liked.jsx";
 import Reviews from "../pages/Reviews.jsx";
 
-import { INITIAL_COMMENTS, INITIAL_LISTS } from "../data/index.js";
-import { sortMovies, getActorMovies } from "../utils/helpers.js";
+import { INITIAL_COMMENTS } from "../data/index.js";
+import { sortMovies } from "../utils/helpers.js";
 import { MovieContext } from "../context/movieContext.jsx";
+import { ListContext } from "../context/listContext.jsx";
 import { useContext } from "react";
 
 export default function App() {
@@ -18,17 +18,12 @@ export default function App() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [likedIds, setLikedIds] = useState(new Set(["succession", "theBear"]));
   const [comments, setComments] = useState(INITIAL_COMMENTS);
-  const [lists, setLists] = useState(INITIAL_LISTS);
   const [newComment, setNewComment] = useState("");
   const [selectedActor, setSelectedActor] = useState(null);
   const [actorSearch, setActorSearch] = useState("");
   const [likedSort, setLikedSort] = useState("default");
   const [likedGenre, setLikedGenre] = useState("All");
-  const [listSorts, setListSorts] = useState({});
   const [showAddToList, setShowAddToList] = useState(false);
-  const [showNewList, setShowNewList] = useState(false);
-  const [newListName, setNewListName] = useState("");
-  const [activeListId, setActiveListId] = useState(INITIAL_LISTS[0].id);
 
   const {
     sortedFiltered,
@@ -84,39 +79,20 @@ export default function App() {
     setNewComment("");
   };
 
-  const toggleMovieInList = (listId, movieId) => {
-    setLists((prev) =>
-      prev.map((l) => {
-        if (l.id !== listId) return l;
-        const has = l.movieIds.includes(movieId);
-        return {
-          ...l,
-          movieIds: has
-            ? l.movieIds.filter((id) => id !== movieId)
-            : [...l.movieIds, movieId],
-        };
-      }),
-    );
-  };
-
-  const createList = () => {
-    if (!newListName.trim()) return;
-    const list = {
-      id: Date.now().toString(),
-      name: newListName.trim(),
-      movieIds: [],
-    };
-    setLists((prev) => [...prev, list]);
-    setNewListName("");
-    setShowNewList(false);
-    setActiveListId(list.id);
-  };
-
-  const deleteList = (listId) => {
-    const remaining = lists.filter((l) => l.id !== listId);
-    setLists(remaining);
-    if (activeListId === listId) setActiveListId(remaining[0]?.id ?? "");
-  };
+  const {
+    lists,
+    activeListId,
+    setActiveListId,
+    showNewList,
+    setShowNewList,
+    newListName,
+    setNewListName,
+    listSorts,
+    setListSorts,
+    toggleMovieInList,
+    createList,
+    deleteList,
+  } = useContext(ListContext);
 
   return (
     <div
@@ -128,7 +104,6 @@ export default function App() {
         setView={setView}
         likedIds={likedIds}
         comments={comments}
-        setActorSearch={setActorSearch}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
@@ -152,23 +127,7 @@ export default function App() {
           />
         )}
 
-        {view === "lists" && (
-          <Lists
-            lists={lists}
-            activeListId={activeListId}
-            setActiveListId={setActiveListId}
-            showNewList={showNewList}
-            setShowNewList={setShowNewList}
-            newListName={newListName}
-            setNewListName={setNewListName}
-            createList={createList}
-            deleteList={deleteList}
-            listSorts={listSorts}
-            setListSorts={setListSorts}
-            toggleMovieInList={toggleMovieInList}
-            setSelectedMovie={setSelectedMovie}
-          />
-        )}
+        {view === "lists" && <Lists setSelectedMovie={setSelectedMovie} />}
 
         {view === "liked" && (
           <Liked
