@@ -6,7 +6,6 @@ import Discover from "../pages/Discover.jsx";
 import Lists from "../pages/Lists.jsx";
 import Liked from "../pages/Liked.jsx";
 import Reviews from "../pages/Reviews.jsx";
-
 import { sortMovies } from "../utils/helpers.js";
 import { MovieContext } from "../context/movieContext.jsx";
 import { MovieLikeContext } from "../context/movieLikeContext.jsx";
@@ -16,15 +15,23 @@ export default function App() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedActor, setSelectedActor] = useState(null);
   const [actorSearch, setActorSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeGenre, setActiveGenre] = useState("All");
-  const [mediaFilter, setMediaFilter] = useState("all");
-  const [discoverSort, setDiscoverSort] = useState("default");
   const [likedSort, setLikedSort] = useState("default");
   const [likedGenre, setLikedGenre] = useState("All");
   const [showAddToList, setShowAddToList] = useState(false);
+  const {
+    sortedFiltered,
+    filteredMovies,
+    allMovies,
+    searchQuery,
+    setSearchQuery,
+    activeGenre,
+    setActiveGenre,
+    mediaFilter,
+    setMediaFilter,
+    discoverSort,
+    setDiscoverSort,
+  } = useContext(MovieContext);
 
-  const { sortedFiltered, filteredMovies, allMovies } = useContext(MovieContext);
   const { likedIds, toggleMovieLike } = useContext(MovieLikeContext);
 
   // Derive liked movies for the Liked page
@@ -32,9 +39,9 @@ export default function App() {
     filteredMovies.filter(
       (m) =>
         likedIds.has(Number(m.id)) &&
-        (likedGenre === "All" || m.genres.includes(likedGenre))
+        (likedGenre === "All" || m.genres.includes(likedGenre)),
     ),
-    likedSort
+    likedSort,
   );
 
   return (
