@@ -24,14 +24,13 @@ export default function MovieCard({ movie, liked, onToggleLike, onOpen, commentC
           <span className="text-[10px] font-mono text-white/90">{movie.rating}</span>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className={`absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between transition-opacity duration-300 ${liked ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
           <button
             onClick={(e) => { e.stopPropagation(); onToggleLike(); }}
             className={`p-1.5 rounded-full backdrop-blur-sm border transition-colors ${
-              liked
-                ? "bg-primary/20 border-primary/40 text-primary"
-                : "bg-black/50 border-white/20 text-white hover:text-primary hover:border-primary/40"
-            }`}
+liked
+  ? "bg-red-500/20 border-red-500/40 text-red-500"
+  : "bg-black/50 border-white/20 text-white hover:text-red-500 hover:border-red-500/40"            }`}
           >
             <Heart className={`w-3.5 h-3.5 ${liked ? "fill-current" : ""}`} />
           </button>

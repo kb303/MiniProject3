@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Film, Search, User } from "lucide-react";
 import AuthPanel from "./AuthPanel.jsx";
+import { ReviewContext } from "../context/reviewContext.jsx";
 
 const NAV_ITEMS = ["discover", "lists", "liked", "reviews"];
 
@@ -8,21 +9,17 @@ export default function Navbar({
   view,
   setView,
   likedIds,
-  comments,
   actorSearch,
   setActorSearch,
   searchQuery,
   setSearchQuery,
 }) {
-  const totalReviews = Object.values(comments).reduce(
-    (s, c) => s + c.length,
-    0,
-  );
+  const { totalReviewCount } = useContext(ReviewContext);
 
   const getLabel = (v) => {
     if (v === "liked") return `Liked (${likedIds.size})`;
     if (v === "lists") return "My Lists";
-    if (v === "reviews") return `Reviews (${totalReviews})`;
+    if (v === "reviews") return `Reviews (${totalReviewCount})`;
     return "Discover";
   };
 
@@ -44,18 +41,14 @@ export default function Navbar({
 
   useEffect(() => {
     syncUserFromStorage();
-
-    const handleAuthChange = () => syncUserFromStorage();
-    window.addEventListener("authStateChanged", handleAuthChange);
-    window.addEventListener("storage", handleAuthChange);
-
+    window.addEventListener("authStateChanged", syncUserFromStorage);
+    window.addEventListener("storage", syncUserFromStorage);
     return () => {
-      window.removeEventListener("authStateChanged", handleAuthChange);
-      window.removeEventListener("storage", handleAuthChange);
+      window.removeEventListener("authStateChanged", syncUserFromStorage);
+      window.removeEventListener("storage", syncUserFromStorage);
     };
   }, []);
 
-  const searchValue = searchQuery;
   const searchPlaceholder =
     view === "reviews" ? "Search reviews..." : "Search titles...";
 
@@ -103,12 +96,13 @@ export default function Navbar({
           <input
             type="text"
             placeholder={searchPlaceholder}
-            value={searchValue}
+            value={searchQuery}
             onChange={handleSearch}
             className="w-full pl-9 pr-4 py-2 bg-muted text-sm rounded-md text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:border-primary/50 transition-colors"
           />
         </div>
 
+        {/* Auth */}
         <div className="relative">
           <button
             onClick={() => setShowAuth((prev) => !prev)}
@@ -123,7 +117,6 @@ export default function Navbar({
               <User className="w-4 h-4" />
             )}
           </button>
-
           {showAuth && <AuthPanel onClose={() => setShowAuth(false)} />}
         </div>
       </div>

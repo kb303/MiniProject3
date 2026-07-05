@@ -5,4 +5,5 @@ module.exports = {
   Show: require("./showModel"),
   Review: require("./reviewModel"),
   Like: require("./likeModel"),
+  MovieLike: require("./movieLikeModel"),
 };

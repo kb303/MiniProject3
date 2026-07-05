@@ -9,7 +9,6 @@ export default function Discover({
   featured,
   sortedFiltered,
   likedIds,
-  comments,
   searchQuery,
   mediaFilter,
   setMediaFilter,
@@ -62,21 +61,19 @@ export default function Discover({
                 <button
                   onClick={() => toggleLike(featuredMovie.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded border text-sm font-medium transition-colors ${
-                    likedIds.has(featuredMovie.id)
+                    likedIds.has(Number(featuredMovie.id))
                       ? "border-primary/40 text-primary bg-primary/10"
                       : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/20"
                   }`}
                 >
                   <Heart
-                    className={`w-4 h-4 ${likedIds.has(featuredMovie.id) ? "fill-current" : ""}`}
+                    className={`w-4 h-4 ${likedIds.has(Number(featuredMovie.id)) ? "fill-current" : ""}`}
                   />
-                  {likedIds.has(featuredMovie.id) ? "Liked" : "Like"}
+                  {likedIds.has(Number(featuredMovie.id)) ? "Liked" : "Like"}
                 </button>
                 <div className="flex items-center gap-1.5 text-primary ml-1">
                   <Star className="w-4 h-4 fill-current" />
-                  <span className="text-sm font-bold">
-                    {featuredMovie.rating}
-                  </span>
+                  <span className="text-sm font-bold">{featuredMovie.rating}</span>
                 </div>
               </div>
             </div>
@@ -136,10 +133,10 @@ export default function Discover({
               <MovieCard
                 key={movie.id}
                 movie={movie}
-                liked={likedIds.has(movie.id)}
+                liked={likedIds.has(Number(movie.id))}
                 onToggleLike={() => toggleLike(movie.id)}
                 onOpen={() => setSelectedMovie(movie)}
-                commentCount={(comments[movie.id] ?? []).length}
+                commentCount={0}
               />
             ))}
           </div>
