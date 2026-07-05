@@ -1,7 +1,6 @@
 import { createContext, useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import { sortMovies } from "../utils/helpers.js";
-import { MOVIES, GENRES } from "../data/index.js";
 
 export const MovieContext = createContext();
 
@@ -23,7 +22,7 @@ const normalizeMovies = (payload) => {
     id: movie.id ?? movie._id ?? movie.slug ?? "",
     title: movie.title ?? movie.name ?? "Untitled",
     year: movie.year ?? movie.premiered?.slice(0, 4) ?? 0,
-    type: movie.type ?? (movie.network ? "tv" : "movie"),
+    type: movie.type ?? (movie.genre === "Drama" ? "movie" : "tv"),
     genres: Array.isArray(movie.genres)
       ? movie.genres
       : typeof movie.genre === "string"
@@ -41,17 +40,19 @@ const normalizeMovies = (payload) => {
 
 const normalizeGenres = (payload) => {
   if (!Array.isArray(payload)) return [];
-  return payload.flatMap((item) => {
+  const genres = payload.flatMap((item) => {
     if (Array.isArray(item)) return item;
     if (typeof item === "string") return [item];
     if (typeof item?.name === "string") return [item.name];
     return [];
   });
+
+  return [...new Set(genres.map((genre) => String(genre).trim()).filter(Boolean))];
 };
 
 export function MovieProvider({ children }) {
   const [discoverSort, setDiscoverSort] = useState("default");
-  const [activeGenre, setActiveGenre] = useState(null);
+  const [activeGenre, setActiveGenre] = useState("All");
   const [mediaFilter, setMediaFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -64,12 +65,12 @@ export function MovieProvider({ children }) {
       const movies = normalizeMovies(response.data ?? []);
       const action = {
         type: "LoadMovies",
-        payload: movies.length > 0 ? movies : MOVIES,
+        payload: movies,
       };
       dispatchAllMovies(action);
     } catch (error) {
       console.error("Failed to load movies", error);
-      dispatchAllMovies({ type: "LoadMovies", payload: MOVIES });
+      dispatchAllMovies({ type: "LoadMovies", payload: [] });
     }
   };
 
@@ -79,12 +80,34 @@ export function MovieProvider({ children }) {
       const genres = normalizeGenres(response.data ?? []);
       const action = {
         type: "LoadGenres",
-        payload: genres.length > 0 ? genres : GENRES,
+        payload: ["All", ...genres.filter((genre) => genre !== "All")],
       };
       dispatchAllGenres(action);
     } catch (error) {
       console.error("Failed to load genres", error);
-      dispatchAllGenres({ type: "LoadGenres", payload: GENRES });
+      dispatchAllGenres({ type: "LoadGenres", payload: ["All"] });
+    }
+  };
+
+  const getMovieLists = async () => {
+    try {
+      const response = await axios.get("/api/movies/lists");
+      const lists = response.data ?? [];
+      return lists;
+    } catch (error) {
+      console.error("Failed to load movie lists", error);
+      return [];
+    }
+  };
+
+  const createMovieList = async (listName, movieIds) => {
+    try {
+      const payload = { name: listName, movieIds };
+      const response = await axios.post("/api/movies/lists", payload);
+      return response.data ?? null;
+    } catch (error) {
+      console.error("Failed to create movie list", error);
+      return null;
     }
   };
 
@@ -116,6 +139,7 @@ export function MovieProvider({ children }) {
         getGenres,
         getMovies,
         filteredMovies,
+        allMovies,
         discoverSort,
         setDiscoverSort,
         activeGenre,

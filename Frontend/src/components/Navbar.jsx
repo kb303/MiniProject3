@@ -1,4 +1,6 @@
-import { Film, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Film, Search, User } from "lucide-react";
+import AuthPanel from "./AuthPanel.jsx";
 
 const NAV_ITEMS = ["discover", "lists", "liked", "reviews"];
 
@@ -23,6 +25,35 @@ export default function Navbar({
     if (v === "reviews") return `Reviews (${totalReviews})`;
     return "Discover";
   };
+
+  const [showAuth, setShowAuth] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const syncUserFromStorage = () => {
+    const storedUser = localStorage.getItem("authUser");
+    if (storedUser) {
+      try {
+        setCurrentUser(JSON.parse(storedUser));
+      } catch {
+        setCurrentUser(null);
+      }
+    } else {
+      setCurrentUser(null);
+    }
+  };
+
+  useEffect(() => {
+    syncUserFromStorage();
+
+    const handleAuthChange = () => syncUserFromStorage();
+    window.addEventListener("authStateChanged", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("authStateChanged", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
+  }, []);
 
   const searchValue = searchQuery;
   const searchPlaceholder =
@@ -76,6 +107,24 @@ export default function Navbar({
             onChange={handleSearch}
             className="w-full pl-9 pr-4 py-2 bg-muted text-sm rounded-md text-foreground placeholder:text-muted-foreground border border-border focus:outline-none focus:border-primary/50 transition-colors"
           />
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowAuth((prev) => !prev)}
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-border bg-muted text-foreground hover:border-primary/50 hover:text-primary transition-colors"
+            aria-label="Open account menu"
+          >
+            {currentUser?.firstName ? (
+              <span className="text-sm font-semibold uppercase">
+                {currentUser.firstName.charAt(0)}
+              </span>
+            ) : (
+              <User className="w-4 h-4" />
+            )}
+          </button>
+
+          {showAuth && <AuthPanel onClose={() => setShowAuth(false)} />}
         </div>
       </div>
     </nav>

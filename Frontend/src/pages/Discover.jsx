@@ -1,7 +1,8 @@
 import { Film, Eye, Heart, Star } from "lucide-react";
+import { useContext } from "react";
 import MovieCard from "../components/MovieCard.jsx";
 import SortSelect from "../components/SortSelect.jsx";
-import { GENRES } from "../data/index.js";
+import { MovieContext } from "../context/movieContext.jsx";
 import { backdropUrl } from "../utils/helpers.js";
 
 export default function Discover({
@@ -20,6 +21,9 @@ export default function Discover({
   toggleLike,
 }) {
   const featuredMovie = featured ?? null;
+  const { allGenres = [] } = useContext(MovieContext);
+  const discoverGenres =
+    Array.isArray(allGenres) && allGenres.length > 0 ? allGenres : ["All"];
 
   return (
     <div>
@@ -103,7 +107,7 @@ export default function Discover({
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          {GENRES.slice(0, 11).map((g) => (
+          {discoverGenres.slice(0, 11).map((g) => (
             <button
               key={g}
               onClick={() => setActiveGenre(g)}
