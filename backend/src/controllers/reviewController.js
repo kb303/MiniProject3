@@ -1,5 +1,6 @@
 const {
   createReviewInDB,
+  getAllReviewsFromDB,
   getReviewsByShowFromDB,
   getReviewsByUserFromDB,
 } = require("../services/reviewServices");
@@ -7,6 +8,10 @@ const {
 const createReview = async (userId, reviewBody) => {
   const review = await createReviewInDB({ ...reviewBody, user: userId });
   return review;
+};
+
+const getAllReviews = async () => {
+  return await getAllReviewsFromDB();
 };
 
 const getReviewsByShow = async (showId) => {
@@ -22,4 +27,4 @@ const getReviewsByUser = async (userId) => {
   return reviews;
 };
 
-module.exports = { createReview, getReviewsByShow, getReviewsByUser };
+module.exports = { createReview, getAllReviews, getReviewsByShow, getReviewsByUser };

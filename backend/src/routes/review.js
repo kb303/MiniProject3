@@ -3,11 +3,23 @@ const router = express.Router();
 
 const {
   createReview,
+  getAllReviews,
   getReviewsByShow,
   getReviewsByUser,
 } = require("../controllers/reviewController");
 const { authenticateToken } = require("../middleware/authMiddleware");
 
+// Get all reviews (with like counts) — used by the Reviews page
+router.get("/", async (req, res) => {
+  try {
+    const reviews = await getAllReviews();
+    res.json(reviews);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Post a new review (auth required)
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const review = await createReview(req.user.userId, req.body);
@@ -17,6 +29,7 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
+// Get reviews for a specific show
 router.get("/show/:showId", async (req, res) => {
   try {
     const showId = Number(req.params.showId);
@@ -28,13 +41,15 @@ router.get("/show/:showId", async (req, res) => {
   }
 });
 
-router.get("/user/:userId", async (req, res) => {
+router.get("/me", authenticateToken, async (req, res) => {
   try {
-    const reviews = await getReviewsByUser(req.params.userId);
+    const reviews = await getReviewsByUser(req.user.userId);
     res.json(reviews);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 module.exports = router;
