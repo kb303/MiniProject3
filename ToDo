@@ -1,7 +1,0 @@
-// 1. create user authentication and authorization system using JWT and bcrypt
-// 2. create db models for movies, users, actors, comments and reviews // 3.
-create yml file for docker to compose mongodb server // 4. research for should
-be in middleware // 5. create routes for movies, users, actors, comments and
-reviews // 6. create controllers for movies, users, actors, comments and reviews
-//7. make sure dob when creating user is converted to YYYY-MM-DD format and
-stored in db as date type
